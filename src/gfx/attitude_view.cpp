@@ -10,14 +10,14 @@ namespace {
 
 constexpr uint32_t SKY = 0x2B7CD3, GROUND = 0x8A5A2B, WHITE = 0xFFFFFF, AIRCRAFT = 0xFFC107;
 
-lv_obj_t *canvas = nullptr;
-lv_obj_t *toast = nullptr;
-attitude_state::Attitude g_att = {0, 0};     // latest attitude, sampled once per frame by refresh()
+lv_obj_t* canvas = nullptr;
+lv_obj_t* toast = nullptr;
+attitude_state::Attitude g_att = {0, 0}; // latest attitude, sampled once per frame by refresh()
 
 // Draws the instrument straight into the render buffer (see gfx/raster.h).
-void on_draw(lv_event_t *e) {
-    lv_layer_t *l = lv_event_get_layer(e);
-    const float CX = 120, CY = 120, PPD = 2.4f;     // pixels per degree of pitch
+void on_draw(lv_event_t* e) {
+    lv_layer_t* l = lv_event_get_layer(e);
+    const float CX = 120, CY = 120, PPD = 2.4f; // pixels per degree of pitch
     const float r = g_att.roll_deg * 0.0174532925f;
     const float cr = cosf(r), sr = sinf(r);
     // horizon direction (right) and "towards ground" normal in screen coordinates
@@ -28,15 +28,17 @@ void on_draw(lv_event_t *e) {
 
     // pitch ladder (marks in degrees above the horizon)
     for (int p = -30; p <= 30; p += 5) {
-        if (p == 0) continue;
+        if (p == 0)
+            continue;
         float off = -p * PPD;
         float mx = hx + nx * off, my = hy + ny * off;
-        if (fabsf(mx - CX) + fabsf(my - CY) > 150) continue;
+        if (fabsf(mx - CX) + fabsf(my - CY) > 150)
+            continue;
         bool major = (p % 10) == 0;
         float half = major ? 26 : 14;
         raster::segment(l, mx - dx * half, my - dy * half, mx + dx * half, my + dy * half, major ? 2 : 1, WHITE);
         if (major) {
-            int n = abs(p) / 10;                        // 1, 2, 3 -> "10", "20", "30"
+            int n = abs(p) / 10; // 1, 2, 3 -> "10", "20", "30"
             for (int side = -1; side <= 1; side += 2) {
                 float lx = mx + dx * side * (half + 14), ly = my + dy * side * (half + 14);
                 raster::digit(l, n, (int)lx - 6, (int)ly - 3, WHITE);
@@ -48,10 +50,11 @@ void on_draw(lv_event_t *e) {
     // bank scale: ticks rotate with the sky, fixed pointer at the top
     static const int ticks[] = {-60, -45, -30, -20, -10, 0, 10, 20, 30, 45, 60};
     for (int t : ticks) {
-        float a = (t - g_att.roll_deg) * 0.0174532925f;      // screen angle clockwise from top
+        float a = (t - g_att.roll_deg) * 0.0174532925f; // screen angle clockwise from top
         float sa = sinf(a), ca = cosf(a);
         float r1 = 104, r2 = (t % 30 == 0) ? 94 : 98;
-        if (t == 0) r2 = 92;
+        if (t == 0)
+            r2 = 92;
         raster::segment(l, CX + sa * r1, CY - ca * r1, CX + sa * r2, CY - ca * r2, (t % 30 == 0) ? 3 : 2, WHITE);
     }
     raster::top_pointer(l, AIRCRAFT);
@@ -61,10 +64,10 @@ void on_draw(lv_event_t *e) {
     raster::segment(l, CX + 26, CY, CX + 70, CY, 5, AIRCRAFT);
     raster::segment(l, CX - 26, CY, CX - 26, CY + 10, 5, AIRCRAFT);
     raster::segment(l, CX + 26, CY, CX + 26, CY + 10, 5, AIRCRAFT);
-    raster::segment(l, CX, CY, CX, CY, 8, AIRCRAFT);   // centre dot
+    raster::segment(l, CX, CY, CX, CY, 8, AIRCRAFT); // centre dot
 }
 
-void refresh(lv_timer_t *) {
+void refresh(lv_timer_t*) {
     g_att = attitude_state::get_attitude();
     lv_obj_invalidate(canvas);
 
@@ -77,9 +80,9 @@ void refresh(lv_timer_t *) {
     }
 }
 
-}  // namespace
+} // namespace
 
-void create(lv_obj_t *screen) {
+void create(lv_obj_t* screen) {
     lv_obj_remove_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
 
     canvas = lv_obj_create(screen);
@@ -101,4 +104,4 @@ void create(lv_obj_t *screen) {
     lv_timer_create(refresh, 1, nullptr);
 }
 
-}  // namespace attitude_view
+} // namespace attitude_view

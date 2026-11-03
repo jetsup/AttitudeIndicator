@@ -4,4 +4,4 @@
 namespace sensor_task {
 // Initialises the IMU + touch hardware and starts the task. Returns false if the IMU is missing.
 bool start();
-}  // namespace sensor_task
+} // namespace sensor_task

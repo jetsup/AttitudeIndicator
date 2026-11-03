@@ -4,4 +4,4 @@
 namespace cst816 {
 void begin();
 bool touching();
-}  // namespace cst816
+} // namespace cst816

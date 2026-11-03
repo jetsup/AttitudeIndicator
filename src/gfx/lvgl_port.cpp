@@ -7,30 +7,34 @@
 namespace lvgl_port {
 namespace {
 
-lv_display_t *disp = nullptr;
+lv_display_t* disp = nullptr;
 volatile uint32_t frames = 0;
 
 // Tell LVGL a flush finished. Done from task context only: LVGL is not ISR-safe.
 void complete_flush_if_ready() {
-    if (gc9a01::take_flush_done()) lv_display_flush_ready(disp);
+    if (gc9a01::take_flush_done())
+        lv_display_flush_ready(disp);
 }
 
-void flush_cb(lv_display_t *, const lv_area_t *a, uint8_t *px) {
+void flush_cb(lv_display_t*, const lv_area_t* a, uint8_t* px) {
     uint32_t count = (a->x2 - a->x1 + 1) * (a->y2 - a->y1 + 1);
-    lv_draw_rgb565_swap(px, count);                      // panel wants big-endian RGB565
+    lv_draw_rgb565_swap(px, count); // panel wants big-endian RGB565
     gc9a01::flush(a->x1, a->y1, a->x2, a->y2, px);
 }
 
-void flush_wait_cb(lv_display_t *) {                    // LVGL needs the buffer back: block until DMA is done
-    while (!gc9a01::take_flush_done()) taskYIELD();
+void flush_wait_cb(lv_display_t*) { // LVGL needs the buffer back: block until DMA is done
+    while (!gc9a01::take_flush_done())
+        taskYIELD();
     lv_display_flush_ready(disp);
 }
 
-void on_refresh_ready(lv_event_t *) { frames++; }
+void on_refresh_ready(lv_event_t*) {
+    frames++;
+}
 
-}  // namespace
+} // namespace
 
-lv_display_t *init() {
+lv_display_t* init() {
     lv_init();
     lv_tick_set_cb([]() -> uint32_t { return millis(); });
 
@@ -39,9 +43,13 @@ lv_display_t *init() {
     // so the strip can never spill past the allocation and corrupt the heap.
     const size_t bytes = gc9a01::MAX_FLUSH_PIXELS * 2;
     const size_t alloc = bytes + 2 * LV_DRAW_BUF_ALIGN;
-    uint8_t *buf1 = (uint8_t *)heap_caps_aligned_alloc(LV_DRAW_BUF_ALIGN, alloc, MALLOC_CAP_DMA);
-    uint8_t *buf2 = (uint8_t *)heap_caps_aligned_alloc(LV_DRAW_BUF_ALIGN, alloc, MALLOC_CAP_DMA);
-    if (!buf1 || !buf2) { Serial.println("FATAL: no DMA memory for render buffers"); for (;;) delay(1000); }
+    uint8_t* buf1 = (uint8_t*)heap_caps_aligned_alloc(LV_DRAW_BUF_ALIGN, alloc, MALLOC_CAP_DMA);
+    uint8_t* buf2 = (uint8_t*)heap_caps_aligned_alloc(LV_DRAW_BUF_ALIGN, alloc, MALLOC_CAP_DMA);
+    if (!buf1 || !buf2) {
+        Serial.println("FATAL: no DMA memory for render buffers");
+        for (;;)
+            delay(1000);
+    }
 
     disp = lv_display_create(board::LCD_W, board::LCD_H);
     lv_display_set_color_format(disp, LV_COLOR_FORMAT_RGB565);
@@ -61,6 +69,8 @@ void run_once() {
     complete_flush_if_ready();
 }
 
-uint32_t frame_count() { return frames; }
+uint32_t frame_count() {
+    return frames;
+}
 
-}  // namespace lvgl_port
+} // namespace lvgl_port

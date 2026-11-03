@@ -16,13 +16,16 @@ bool write8(uint8_t addr, uint8_t reg, uint8_t val) {
     return Wire.endTransmission() == 0;
 }
 
-bool read(uint8_t addr, uint8_t reg, uint8_t *buf, size_t n) {
+bool read(uint8_t addr, uint8_t reg, uint8_t* buf, size_t n) {
     Wire.beginTransmission(addr);
     Wire.write(reg);
-    if (Wire.endTransmission(false) != 0) return false;
-    if (Wire.requestFrom((int)addr, (int)n) != (int)n) return false;
-    for (size_t i = 0; i < n; i++) buf[i] = Wire.read();
+    if (Wire.endTransmission(false) != 0)
+        return false;
+    if (Wire.requestFrom((int)addr, (int)n) != (int)n)
+        return false;
+    for (size_t i = 0; i < n; i++)
+        buf[i] = Wire.read();
     return true;
 }
 
-}  // namespace i2c_bus
+} // namespace i2c_bus

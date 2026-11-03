@@ -7,4 +7,4 @@ constexpr int LCD_DC = 8, LCD_CS = 9, LCD_SCK = 10, LCD_MOSI = 11, LCD_RST = 14,
 constexpr int LCD_W = 240, LCD_H = 240;
 // Shared I2C bus: QMI8658 IMU + CST816S touch
 constexpr int I2C_SDA = 6, I2C_SCL = 7, TP_RST = 13;
-}  // namespace board
+} // namespace board

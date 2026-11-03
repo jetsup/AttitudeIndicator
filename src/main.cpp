@@ -21,7 +21,7 @@ void setup() {
 
     lvgl_port::init();
     attitude_view::create(lv_screen_active());
-    lvgl_port::run_once();               // render the first frame before lighting the backlight
+    lvgl_port::run_once(); // render the first frame before lighting the backlight
     gc9a01::backlight(true);
 }
 

@@ -10,11 +10,13 @@ volatile Mode mode = MODE_FLAT;
 volatile uint32_t mode_changed_at = 0;
 volatile bool mode_changed = false;
 constexpr float RAD2DEG = 57.29578f;
-}  // namespace
+} // namespace
 
 void publish_up_vector(float x, float y, float z) {
     portENTER_CRITICAL(&mux);
-    up[0] = x; up[1] = y; up[2] = z;
+    up[0] = x;
+    up[1] = y;
+    up[2] = z;
     portEXIT_CRITICAL(&mux);
 }
 
@@ -24,9 +26,13 @@ void toggle_mode() {
     mode_changed = true;
 }
 
-Mode get_mode() { return mode; }
+Mode get_mode() {
+    return mode;
+}
 
-uint32_t ms_since_mode_change() { return mode_changed ? millis() - mode_changed_at : UINT32_MAX; }
+uint32_t ms_since_mode_change() {
+    return mode_changed ? millis() - mode_changed_at : UINT32_MAX;
+}
 
 Attitude get_attitude() {
 #ifdef SIM_ATTITUDE
@@ -35,16 +41,28 @@ Attitude get_attitude() {
 #endif
     float u[3];
     portENTER_CRITICAL(&mux);
-    u[0] = up[0]; u[1] = up[1]; u[2] = up[2];
+    u[0] = up[0];
+    u[1] = up[1];
+    u[2] = up[2];
     portEXIT_CRITICAL(&mux);
     // Body frame: x = screen top, y = screen left, z = out of screen.
     // Express the aircraft axes (forward / right / up) in it.
     float fwd, right, upv;
-    if (mode == MODE_FLAT) { fwd = u[0];  right = -u[1]; upv = u[2]; }   // nose = screen top
-    else                   { fwd = -u[2]; right = -u[1]; upv = u[0]; }   // nose = away from viewer
-    if (fwd > 1) fwd = 1;
-    if (fwd < -1) fwd = -1;
+    if (mode == MODE_FLAT) {
+        fwd = u[0];
+        right = -u[1];
+        upv = u[2];
+    } // nose = screen top
+    else {
+        fwd = -u[2];
+        right = -u[1];
+        upv = u[0];
+    } // nose = away from viewer
+    if (fwd > 1)
+        fwd = 1;
+    if (fwd < -1)
+        fwd = -1;
     return {asinf(fwd) * RAD2DEG, atan2f(-right, upv) * RAD2DEG};
 }
 
-}  // namespace attitude_state
+} // namespace attitude_state
